@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 
-const { getNotes } = require("../controllers/note");
+const { getNotes, createNote } = require("../controllers/note");
 
 // simple disk storage for audio
 const storage = multer.diskStorage({
@@ -18,7 +18,7 @@ const upload = multer({ storage });
 
 // Routes
 
-router.post("/", upload.single("audio"));
+router.post("/", upload.single("audio"), createNote);
 router.get("/", getNotes);
 
 module.exports = router;
