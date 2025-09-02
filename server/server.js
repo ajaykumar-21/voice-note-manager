@@ -4,10 +4,17 @@ const dotenv = require("dotenv");
 
 dotenv.config({ quiet: true });
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8001;
 const MONGO_URI = process.env.MONGO_URI;
 
+app.use(express.json());
+
 const connectToMongoDb = require("./config/connection");
+
+//routes
+const notesRoute = require("./routes/note");
+
+app.use("/api/notes", notesRoute);
 
 connectToMongoDb(MONGO_URI)
   .then(() => console.log("Connect mongoDB"))
