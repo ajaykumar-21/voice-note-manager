@@ -33,12 +33,47 @@ const createNote = async (req, res) => {
 
     return res.status(201).json(note);
   } catch (error) {
-    console.error("Error while creating", error);
+    // console.error("Error while creating", error);
     res.status(500).json({ error: "failed to create note" });
+  }
+};
+
+// Update transcript and clears summary
+const updateNote = async (req, res) => {
+  try {
+    const { transcript } = req.body;
+    const note = await Note.findByIdAndUpdate(req.params.id, {
+      transcript,
+      summary: "",
+    });
+
+    return res.json(note);
+  } catch (error) {
+    res.status(400).json({ error: "Update failed" });
+  }
+};
+
+//Delete note and remove audio file
+const deleteNote = async (req, res) => {
+  try {
+    const note = await Note.findByIdAndDelete(req.params.id);
+    console.log(note);
+
+    if (note?.audioPath) {
+      const p = note.audioPath.replace(/^\//, "");
+      console.log(p);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    res.status(400).json({ error: "Delete failed" });
   }
 };
 
 module.exports = {
   getNotes,
   createNote,
+  updateNote,
+  deleteNote,
 };
