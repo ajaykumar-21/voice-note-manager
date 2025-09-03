@@ -8,9 +8,15 @@ function Recorder({ onCreated }) {
 
   const isRecording = status === "recording";
   const [isUploading, setIsUploading] = useState(false);
+  const [readyToUpload, setReadyToUpload] = useState(false);
+
+  const handleStop = () => {
+    stopRecording();
+    setReadyToUpload(true);
+  };
 
   const handleUpload = async () => {
-    console.log(mediaBlobUrl);
+    // console.log(mediaBlobUrl);
     if (!mediaBlobUrl) return;
 
     setIsUploading(true);
@@ -27,6 +33,8 @@ function Recorder({ onCreated }) {
       if (onCreated) {
         onCreated(res.data);
       }
+
+      setReadyToUpload(false);
     } catch (err) {
       console.error("Upload failed", err);
       alert("Failed to upload/transcribe audio");
@@ -37,38 +45,49 @@ function Recorder({ onCreated }) {
 
   return (
     <div className="card" style={{ textAlign: "center" }}>
-      <button
-        className={`btn ${isRecording ? "gray" : "dark"} headerBtn`}
-        onClick={isRecording ? stopRecording : startRecording}
-        disabled={isUploading}
-      >
-        {isUploading
-          ? "Transcribing…"
-          : isRecording
-          ? "Stop & Save"
-          : "Start Recording"}
-      </button>
-
-      {isRecording === false && mediaBlobUrl && (
+      {/* Start / Stop buttons */}
+      {!isRecording && !readyToUpload && (
         <button
-          onClick={handleUpload}
           className="btn dark headerBtn"
-          style={{ marginTop: 8 }}
+          onClick={startRecording}
           disabled={isUploading}
         >
-          {isUploading ? "Uploading…" : "Upload & Transcribe"}
+          Start Recording
         </button>
+      )}
+
+      {isRecording && (
+        <button
+          className="btn gray headerBtn"
+          onClick={handleStop}
+          disabled={isUploading}
+        >
+          Stop & Save
+        </button>
+      )}
+
+      {/* Upload button (only after recording is saved) */}
+      {!isRecording && readyToUpload && mediaBlobUrl && (
+        <div className="wrapper">
+          <audio src={mediaBlobUrl} controls style={{ marginTop: 8 }} />
+          <button
+            onClick={handleUpload}
+            className="btn dark headerBtn"
+            style={{ marginTop: 8 }}
+            disabled={isUploading}
+          >
+            {isUploading ? "Uploading…" : "Upload & Transcribe"}
+          </button>
+        </div>
       )}
 
       <p className="small" style={{ marginTop: 8 }}>
         {isRecording
           ? "Recording…"
+          : readyToUpload
+          ? "Review and upload your note."
           : "Record a voice note; it will be transcribed automatically."}
       </p>
-
-      {mediaBlobUrl && (
-        <audio src={mediaBlobUrl} controls style={{ marginTop: 8 }} />
-      )}
     </div>
   );
 }

@@ -23,9 +23,12 @@ export default function NoteCard({ note, onChange, onDelete }) {
     }
     setSaving(true);
     try {
-      const res = await api.put(`/notes/${note._id}`, { transcript: text });
-      onChange?.(res.data); 
-      setIsEditing(false); 
+      const res = await api.put(`/notes/${note._id}`, {
+        transcript: text,
+        summary: null, // clear summary when transcript is updated
+      });
+      onChange?.(res.data);
+      setIsEditing(false);
     } catch (err) {
       console.error("Save failed", err);
       alert("Save failed");
@@ -48,25 +51,42 @@ export default function NoteCard({ note, onChange, onDelete }) {
     }
   };
 
+  // show transcript if no summary OR transcript was just edited
+  const showTranscript = !note.summary || edited || isEditing;
+
+  // disable summarize button if summary exists and transcript not edited
   const summaryDisabled = !!note.summary && !edited;
+
+  // helper: format summary text into clean lines
+  function formatSummary(summary) {
+    if (!summary) return "";
+    return summary
+      .split("\n") // split by line breaks
+      .map((line) => line.trim().replace(/^-\s*/, "")) // remove leading "- "
+      .filter((line) => line.length > 0); // remove empty lines
+  }
 
   return (
     <div className="card">
-      {isEditing ? (
-        <textarea
-          className="textarea"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Transcript..."
-        />
+      {showTranscript ? (
+        isEditing ? (
+          <textarea
+            className="textarea"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Transcript..."
+          />
+        ) : (
+          <div className="transcript">{text}</div>
+        )
       ) : (
-        <div>
-          {note.summary && (
-            <div className="summary">
-              <strong>Summary</strong>
-              <div style={{ marginTop: 6 }}>{note.summary}</div>
-            </div>
-          )}
+        <div className="summary">
+          <strong>Summary</strong>
+          <div style={{ marginTop: 6 }}>
+            {formatSummary(note.summary).map((point, idx) => (
+              <div key={idx}>{point}</div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -89,7 +109,7 @@ export default function NoteCard({ note, onChange, onDelete }) {
           <button
             className={`btn dark ${summaryDisabled ? "disabled" : ""}`}
             onClick={handleSummarize}
-            disabled={summaryDisabled || summarizing}
+            disabled={summaryDisabled || summarizing || !text}
           >
             {summarizing ? "Generating…" : "Generate Summary"}
           </button>
