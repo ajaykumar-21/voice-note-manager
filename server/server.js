@@ -11,7 +11,7 @@ const MONGO_URI = process.env.MONGO_URI;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://voice-note-manager.vercel.app/"],
+    origin: ["http://localhost:3000", "https://voice-note-manager.vercel.app"],
     credentials: true,
   })
 );
