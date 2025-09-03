@@ -9,7 +9,12 @@ const PORT = process.env.PORT || 8001;
 const MONGO_URI = process.env.MONGO_URI;
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://voice-note-manager.vercel.app/"],
+    credentials: true,
+  })
+);
 
 const connectToMongoDb = require("./config/connection");
 
