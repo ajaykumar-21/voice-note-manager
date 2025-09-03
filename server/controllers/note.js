@@ -42,10 +42,14 @@ const createNote = async (req, res) => {
 const updateNote = async (req, res) => {
   try {
     const { transcript } = req.body;
-    const note = await Note.findByIdAndUpdate(req.params.id, {
-      transcript,
-      summary: "",
-    });
+    const note = await Note.findByIdAndUpdate(
+      req.params.id,
+      {
+        transcript,
+        summary: "",
+      },
+      { new: true } // ✅ return updated document instead of old one
+    );
 
     return res.json(note);
   } catch (error) {

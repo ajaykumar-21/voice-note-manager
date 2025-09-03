@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import Recorder from "../components/Recorder";
+import NoteCard from "../components/NoteCard";
 
 function Home() {
   const [notes, setNotes] = useState([]);
@@ -49,6 +50,15 @@ function Home() {
     <div className="container">
       <h1 className="h1">Voice Notes</h1>
       <Recorder onCreated={handleCreated} />
+
+      {notes.map((note) => (
+        <NoteCard
+          key={note._id}
+          note={note}
+          onChange={handleUpdate}
+          onDelete={handleDelete}
+        />
+      ))}
     </div>
   );
 }
