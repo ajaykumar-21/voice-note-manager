@@ -7,6 +7,7 @@ const {
   createNote,
   updateNote,
   deleteNote,
+  summarizeNote,
 } = require("../controllers/note");
 
 // simple disk storage for audio
@@ -27,5 +28,6 @@ router.post("/", upload.single("audio"), createNote);
 router.get("/", getNotes);
 router.put("/:id", updateNote);
 router.delete("/:id", deleteNote);
+router.post("/:id/summary", summarizeNote);
 
 module.exports = router;
