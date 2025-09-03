@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import Recorder from "../components/Recorder";
 
@@ -6,7 +6,7 @@ function Home() {
   const [notes, setNotes] = useState([]);
 
   useEffect(() => {
-    const loadingNotes = async () => {
+    const getNotes = async () => {
       try {
         const res = await api.get("/notes");
         // console.log(res.data);
@@ -16,11 +16,34 @@ function Home() {
         alert("Failed to load notes");
       }
     };
-    loadingNotes();
+    getNotes();
   }, []);
 
-  // add newly created note to list (from Recorder)
-  const handleCreated = (note) => setNotes((prev) => [note, ...prev]);
+  // add newly created note to list
+  const handleCreated = (note) => {
+    setNotes((prev) => [note, ...prev]);
+  };
+
+  // update a single note
+  const handleUpdate = (updated) => {
+    const updatedNote = notes.map((note) =>
+      note._id === updated._id ? updated : note
+    );
+    setNotes(updatedNote);
+  };
+
+  // delete a note
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/notes/${id}`);
+
+      const deleteNote = notes.filter((note) => note._id !== id);
+      setNotes(deleteNote);
+    } catch (err) {
+      console.error("Delete failed", err);
+      alert("Delete failed");
+    }
+  };
 
   return (
     <div className="container">
